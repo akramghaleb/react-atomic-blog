@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { faker } from "@faker-js/faker";
 
 function createRandomPost() {
@@ -7,6 +7,9 @@ function createRandomPost() {
     body: faker.hacker.phrase(),
   };
 }
+
+// 1- CREATE A NEW CONTEXT
+const PostContext = createContext()
 
 function App() {
   const [posts, setPosts] = useState(() =>
@@ -19,10 +22,10 @@ function App() {
   const searchedPosts =
     searchQuery.length > 0
       ? posts.filter((post) =>
-          `${post.title} ${post.body}`
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase())
-        )
+        `${post.title} ${post.body}`
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      )
       : posts;
 
   function handleAddPost(post) {
@@ -42,24 +45,35 @@ function App() {
   );
 
   return (
-    <section>
-      <button
-        onClick={() => setIsFakeDark((isFakeDark) => !isFakeDark)}
-        className="btn-fake-dark-mode"
-      >
-        {isFakeDark ? "☀️" : "🌙"}
-      </button>
+    // 2- PROVIDE VALUE TO CHILD COMPONENTS
+    <PostContext.Provider value={{
+      posts: searchedPosts,
+      onAddPost: handleAddPost,
+      onClearPosts: handleClearPosts,
+      searchQuery,
+      setSearchQuery,
+      isFakeDark,
+      setIsFakeDark,
+    }}>
+      <section>
+        <button
+          onClick={() => setIsFakeDark((isFakeDark) => !isFakeDark)}
+          className="btn-fake-dark-mode"
+        >
+          {isFakeDark ? "☀️" : "🌙"}
+        </button>
 
-      <Header
-        posts={searchedPosts}
-        onClearPosts={handleClearPosts}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-      />
-      <Main posts={searchedPosts} onAddPost={handleAddPost} />
-      <Archive onAddPost={handleAddPost} />
-      <Footer />
-    </section>
+        <Header
+          posts={searchedPosts}
+          onClearPosts={handleClearPosts}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
+        <Main posts={searchedPosts} onAddPost={handleAddPost} />
+        <Archive onAddPost={handleAddPost} />
+        <Footer />
+      </section>
+    </PostContext.Provider>
   );
 }
 

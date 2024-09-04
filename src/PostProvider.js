@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { faker } from "@faker-js/faker";
 
 function createRandomPost() {
@@ -16,6 +16,11 @@ function PostProvider({ children }) {
         Array.from({ length: 30 }, () => createRandomPost())
     );
     const [searchQuery, setSearchQuery] = useState("");
+
+    const [archivedPosts] = useState(() =>
+        // 💥 WARNING: This might make your computer slow! Try a smaller `length` first
+        Array.from({ length: 10000 }, () => createRandomPost())
+    );
 
     // Derived state. These are the posts that will actually be displayed
     const searchedPosts =
@@ -41,7 +46,8 @@ function PostProvider({ children }) {
         onAddPost: handleAddPost,
         onClearPosts: handleClearPosts,
         searchQuery,
-        setSearchQuery
+        setSearchQuery,
+        archivedPosts
     }}>
         {children}
     </PostContext.Provider>
@@ -54,4 +60,4 @@ function usePosts() {
     return context
 }
 
-export { PostProvider, usePosts, createRandomPost }
+export { PostProvider, usePosts }
